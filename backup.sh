@@ -5,6 +5,19 @@
 # Назначение: Создает сжатый бэкап папки с логом
 # =============================================
 
+# --- 0. Убедимся, что папка для логов существует ---
+LOG_DIR="$HOME/devops/backup-system/logs"
+if [ ! -d "$LOG_DIR" ]; then
+    mkdir -p "$LOG_DIR"
+fi
+
+# --- 1. Конфигурация (измени под себя) ---
+SOURCE_DIR="$1"  # берем папку из первого аргумента командной строки
+BACKUP_DIR="$HOME/backups"
+LOG_FILE="$LOG_DIR/backup.log"
+DATE=$(date +"%Y-%m-%d_%H-%M")
+BACKUP_NAME="backup_$DATE.tar.gz"
+
 # --- 1. Конфигурация (измени под себя) ---
 SOURCE_DIR="$1"  # берем папку из первого аргумента командной строки
 BACKUP_DIR="$HOME/backups"
