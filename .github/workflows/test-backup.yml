@@ -1,0 +1,56 @@
+name: Test Backup Script
+
+# Когда запускать пайплайн:
+on:
+  push:                # При каждом пуше
+    branches: [ main ] # в ветку main
+  pull_request:        # И при создании Pull Request
+    branches: [ main ]
+
+# Что именно делать (jobs):
+jobs:
+  test:
+    runs-on: ubuntu-latest  # Запускаем в чистой Ubuntu
+    
+    steps:
+    # 1. Скачать код из репозитория
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    # 2. Сделать скрипт исполняемым
+    - name: Make script executable
+      run: chmod +x backup.sh
+      
+    # 3. Создать тестовую папку с файлами
+    - name: Create test data
+      run: |
+        mkdir -p ~/test-data
+        echo "Hello from CI!" > ~/test-data/hello.txt
+        echo "Another file" > ~/test-data/another.txt
+      
+    # 4. Запустить бэкап-скрипт на тестовой папке
+    - name: Run backup script
+      run: ./backup.sh ~/test-data
+      
+    # 5. Проверить, что архив создался
+    - name: Verify backup created
+      run: |
+        ls -lh ~/backups/
+        # Проверяем, что есть файл backup_*.tar.gz
+        if [ -f ~/backups/backup_*.tar.gz ]; then
+          echo "✅ Backup file exists!"
+        else
+          echo "❌ Backup file NOT found!"
+          exit 1
+        fi
+      
+    # 6. Проверить, что лог создался и содержит записи
+    - name: Verify log file
+      run: |
+        cat ~/devops/backup-system/logs/backup.log
+        if grep -q "УСПЕХ" ~/devops/backup-system/logs/backup.log; then
+          echo "✅ Log contains success message!"
+        else
+          echo "❌ No success message in log!"
+          exit 1
+        fi
